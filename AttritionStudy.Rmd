@@ -1,0 +1,26 @@
+---
+title: "Employe Attrition Study"
+author: "Steve Bramhall, Hayley Horn"
+date: "November 21, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE) # each code chunk will have their own echo control
+```
+
+```{r message=FALSE, warning=FALSE}
+# Load Libraries
+library(dplyr)      # for string functions
+library(ggplot2)    # for plots
+library(kableExtra) # for table formatting
+library(knitr)      # for presenting in html
+```
+
+```{r echo = TRUE}
+# Read beer data from csv file and put into breweryDF data frame.Then rename columns to be more readable.
+train <- read.csv(".\\InputFiles\\CaseStudy2-data.csv",header=TRUE,sep=",",encoding = "UTF-8")
+
+# Read beer data from csv file and put into breweryDF data frame.Then rename columns to be more readable.
+validate <- read.csv(".\\InputFiles\\CaseStudy2Validation.csv",header=TRUE,sep=",",encoding = "UTF-8")
+```
