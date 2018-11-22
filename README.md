@@ -1,4 +1,4 @@
-## Employee Retention Study
+## Employee Retention Study     ![picture](./InputtFiles/PeopleDataImage.jpg)
 
 *Steve Bramhall, Hayley Horn*
 
