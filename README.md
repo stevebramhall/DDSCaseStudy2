@@ -1,7 +1,6 @@
-## Employee Retention Study     
+## Employee Retention Study     *Steve Bramhall, Hayley Horn*
 ![picture](./InputFiles/PeopleDataImage.jpg)
 
-*Steve Bramhall, Hayley Horn*
 
 #### The purpose of this case study was to predict employee attrition. Goals include:
 - Exploratory Data Analysis (EDA)
