@@ -1,0 +1,38 @@
+Field,Class,Values,Description,Area,Notes
+ID,int,1:1170,Unique Sequential Identifier,ID,
+Age,int,18:60,Age of Employee,DEMO,
+Attrition,Factor,Yes;No,A value of Yes indicates employee separation,DEMO,
+BusinessTravel,Factor,Travel_Rarely;Non-Travel;Travel_Frequently,A three value description of business travel,LIFE,tied to rank and position
+DailyRate,int,103:1499,Date Rate of Employee,PAY,
+Department,Factor,Human Resources;Research & Development;Sales,Employee department,LIFE,
+DistanceFromHome,int,1:29,Travel miles to the office,LIFE,
+Education,int,1:5,Education level attained,DEMO,Scale
+EducationField,Factor,Human Resources;Technical Degree;Medical;Life Sciences;Other;Marketing,Field of education,DEMO,
+EmployeeCount,int,1:1,Count of employee as if they had conjoined twins,JUNK,Do not use
+EmployeeNumber,int,1:2065,Unique Employee identifier,DEMO,
+EnvironmentSatisfaction,int,1:4,Workplace environment satisfaction,ATTITUDE,Scale
+Gender,Factor,Male;Female,Gender identifier,DEMO,
+HourlyRate,int,30:100,pay rate,PAY,
+JobInvolvement,int,1:4,uncertain,ATTITUDE,Scale
+JobLevel,int,1:5,level of job hierarchy,MOBILITY,Scale
+JobRole,Factor,Human Resources;Manufacturing Director;Research Scientist;Laboratory Technician;Research Director;Sales Executive;Sales Representative;Manager;Healthcare Representative,job role,DEMO,May be proxy for level
+JobSatisfaction,int,1:4,Job satisfaction,ATTITUDE,Scale
+MaritalStatus,Factor,Married;Single;Divorced,Employee marital status,DEMO,
+MonthlyIncome,int,1081:19999,monthly income,PAY,
+MonthlyRate,int,2094:26968,monthly charge rate,PAY,
+NumCompaniesWorked,int,0:9,Employee count of employeers,DEMO,
+Over18,Factor,Y,Indicator if over 18 years,JUNK,Do not use
+OverTime,Factor,No;Yes,Is employee over time eligible,PAY,Naturally tied to role
+PercentSalaryHike,int,11:25,pay increase attained,PAY,
+PerformanceRating,int,3:4,performance rank,MOBILITY,questionable b/c just 3 and 4
+RelationshipSatisfaction:,int,1:4,Employee relationship satisfaction,ATTITUDE,
+StandardHours,int,80:80,hours worked,JUNK,do not use
+StockOptionLevel,int,0:3,stock option level attained,PAY,
+TotalWorkingYears,int,0:40,Overall years worked,DEMO,Naturally tied to age
+TrainingTimesLastYear,int,0:6,how many times tried,MOBILITY,Younger=Values training
+WorkLifeBalance,int,1:4,bwaahhh hhaah ahh,ATTITUDE,
+YearsAtCompany,int,0:40,how many years at company,MOBILITY,Naturally tied to age
+YearsInCurrentRole,int,0:18,how  many years at current role,MOBILITY,
+YearsSinceLastPromotion,int,0:15,promotion history by year,MOBILITY,Naturally tied to age
+YearsWithCurrManager,int,0:17,how many years with manager,MOBILITY,Older=values relationship
+Rand,num, -3.2:3.2,random num for splitting data,JUNK,do not use

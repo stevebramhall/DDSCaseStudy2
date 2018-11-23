@@ -15,12 +15,46 @@ library(dplyr)      # for string functions
 library(ggplot2)    # for plots
 library(kableExtra) # for table formatting
 library(knitr)      # for presenting in html
+library(Hmisc)        # for describing data
+#library(metafor)
+#library(glmulti)
+
 ```
+
+<h4>Abstract</h4><br>
+
+Employees are valuable assets of an organization, and the unexpected departure of a key employee can be disruptive and costly. Employee Benefit News (EBN) reports that it costs employers 33% of a worker's annual salary to hire a replacement if that worker leaves. An internal measure of factors associated with an employee's potential attrition can help management either intervene or mitigate the disruption caused by unplanned staff turnover. This analysis is designed to identify determinants factors of employee attrition. A range of variables were reviewed that fell under the following categories: tenure, training and development opportunities, compensation, management/leadership, work environment, social support, and some attitudindal measures.<br>
+
+The study reached the conclusion that there are certain indicators, that when present are a reasonable indicator that an employee shows signs consistent with attrition. There are also additional findings that hint to was to improve employee retention, which are opportunities to retain staff and reduce the risk of attrition. 
+
+<h4>Keywords</h4><br>
+Talent Mangement, Employee Attrition, Determining Factors, Retention<br>
 
 ```{r echo = TRUE}
-# Read beer data from csv file and put into breweryDF data frame.Then rename columns to be more readable.
+# Read employee data from the training csv file and name the dataset train.Then rename columns to be more readable.
 train <- read.csv(".\\InputFiles\\CaseStudy2-data.csv",header=TRUE,sep=",",encoding = "UTF-8")
 
-# Read beer data from csv file and put into breweryDF data frame.Then rename columns to be more readable.
+# Read employee data from the validation csv file and names the dataset train.Then rename columns to be more readable.
 validate <- read.csv(".\\InputFiles\\CaseStudy2Validation.csv",header=TRUE,sep=",",encoding = "UTF-8")
+
+#Change gender from M/F to 1/0
 ```
+
+Data Exploration
+```{r DE}
+
+#Review the structure of the data
+str(train)
+
+##RESULTS
+#########1170 observations 
+#########37 variables (9 factors, 27 integers, 1 random number)
+
+#HMisc describe gives more details than str
+###I prefer the details in a data dictionary format- but let's discuss
+Hmisc::describe(train, digits = 2, tabular = TRUE)
+
+##Manually created data dictionary based on results below with a notes field
+#DataDict <- read.csv(".\\DataDictionary",header=TRUE,sep=",",encoding = "UTF-8")
+
+``` 
