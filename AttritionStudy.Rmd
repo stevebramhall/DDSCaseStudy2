@@ -37,6 +37,8 @@ train <- read.csv(".\\InputFiles\\CaseStudy2-data.csv",header=TRUE,sep=",",encod
 # Read employee data from the validation csv file and names the dataset train.Then rename columns to be more readable.
 validate <- read.csv(".\\InputFiles\\CaseStudy2Validation.csv",header=TRUE,sep=",",encoding = "UTF-8")
 
+alldata = rbind(train,validate) # create dataframe with all data to clean all at same time
+
 #Change gender from M/F to 1/0
 ```
 
@@ -52,9 +54,24 @@ str(train)
 
 #HMisc describe gives more details than str
 ###I prefer the details in a data dictionary format- but let's discuss
-Hmisc::describe(train, digits = 2, tabular = TRUE)
+#Hmisc::describe(train, digits = 2, tabular = TRUE)
+Hmisc::describe(alldata, digits = 2, tabular = TRUE)
+
+# Reviewed train and validate data to confirm factor variable values exist in both
+# Remove variables where all values are the same: StandardHours, EmployeeCount, Over18
+# Remove unrelated variable Rand
+alldata <- select(alldata,-c(StandardHours, EmployeeCount, Over18,Rand))
 
 ##Manually created data dictionary based on results below with a notes field
 #DataDict <- read.csv(".\\DataDictionary",header=TRUE,sep=",",encoding = "UTF-8")
 
 ``` 
+
+### Look for multicollinear variables, need to add re-coded attrition
+```{r}
+library(corrplot)
+M_df <- select_if(alldata, is.numeric) # get all numeric data
+M <- cor(M_df)                         # convert to matrix
+corrplot(M, method = "circle")         # Display the correlation coefficient
+```
+
