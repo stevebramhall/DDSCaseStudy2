@@ -15,7 +15,10 @@ library(dplyr)      # for string functions
 library(ggplot2)    # for plots
 library(kableExtra) # for table formatting
 library(knitr)      # for presenting in html
-library(Hmisc)        # for describing data
+library(Hmisc)      # for describing data
+library(caret)      # for classification & regression training
+library(mlr)        # for machine learing
+library(class)      # for classification funtions
 #library(metafor)
 #library(glmulti)
 
@@ -46,7 +49,7 @@ Data Exploration
 ```{r DE}
 
 #Review the structure of the data
-str(train)
+#str(train)
 
 ##RESULTS
 #########1170 observations 
@@ -55,15 +58,18 @@ str(train)
 #HMisc describe gives more details than str
 ###I prefer the details in a data dictionary format- but let's discuss
 #Hmisc::describe(train, digits = 2, tabular = TRUE)
-Hmisc::describe(alldata, digits = 2, tabular = TRUE)
+#Hmisc::describe(alldata, digits = 2, tabular = TRUE)
 
-# Reviewed train and validate data to confirm factor variable values exist in both
+# Reviewed train and validate data to confirm factor/categorical variable values exist in both
 # Remove variables where all values are the same: StandardHours, EmployeeCount, Over18
 # Remove unrelated variable Rand
-alldata <- select(alldata,-c(StandardHours, EmployeeCount, Over18,Rand))
+alldata <- select(alldata,-c(StandardHours, EmployeeCount, Over18, Rand))
+
+# Recode Attrition with 0s and 1s
+alldata$Attrition <- ifelse(alldata[,3] == "Yes", 1, ifelse(alldata[,3] == "No", 0, 99))
 
 ##Manually created data dictionary based on results below with a notes field
-#DataDict <- read.csv(".\\DataDictionary",header=TRUE,sep=",",encoding = "UTF-8")
+#DataDict <- read.csv(".\\InputFiles\\DataDictionary",header=TRUE,sep=",",encoding = "UTF-8")
 
 ``` 
 
@@ -74,4 +80,19 @@ M_df <- select_if(alldata, is.numeric) # get all numeric data
 M <- cor(M_df)                         # convert to matrix
 corrplot(M, method = "circle")         # Display the correlation coefficient
 ```
+
+```{r}
+samplesize=nrow(alldata)
+train_percent = .6
+train_indices = sample(seq(1,samplesize,length = samplesize),train_percent*samplesize) # get random indices
+training = alldata[train_indices,c(1,2)]   # random training data from original data
+test = alldata[-train_indices,c(1,2)]      # random test data from original data
+training.attrition = alldata[train_indices,3]
+test.attrition = alldata[-train_indices,3]
+
+#### Used the class package’s knn function to build an KNN classifier.
+knn.k21 = knn(training,test,cl=training.attrition,k=21)
+confusionMatrix(table(test.attrition,knn.k21))
+```
+
 
