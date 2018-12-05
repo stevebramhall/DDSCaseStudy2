@@ -1,7 +1,7 @@
 ---
 title: "Employe Attrition Study"
 author: "Steve Bramhall, Hayley Horn"
-date: "November 21, 2018"
+date: "December 5, 2018"
 output: html_document
 ---
 
@@ -19,80 +19,236 @@ library(Hmisc)      # for describing data
 library(caret)      # for classification & regression training
 library(mlr)        # for machine learing
 library(class)      # for classification funtions
+library(corrplot)   # for correlation matrix
+library(data.table)
+library(mltools)
 #library(metafor)
 #library(glmulti)
 
 ```
 
-<h4>Abstract</h4><br>
-
+<h4>Abstract</h4>
 Employees are valuable assets of an organization, and the unexpected departure of a key employee can be disruptive and costly. Employee Benefit News (EBN) reports that it costs employers 33% of a worker's annual salary to hire a replacement if that worker leaves. An internal measure of factors associated with an employee's potential attrition can help management either intervene or mitigate the disruption caused by unplanned staff turnover. This analysis is designed to identify determinants factors of employee attrition. A range of variables were reviewed that fell under the following categories: tenure, training and development opportunities, compensation, management/leadership, work environment, social support, and some attitudindal measures.<br>
 
-The study reached the conclusion that there are certain indicators, that when present are a reasonable indicator that an employee shows signs consistent with attrition. There are also additional findings that hint to was to improve employee retention, which are opportunities to retain staff and reduce the risk of attrition. 
+The study reached the conclusion that there are certain indicators, that when present are a reasonable indicator that an employee shows signs consistent with attrition. There are also additional findings that hint to was to improve employee retention, which are opportunities to retain staff and reduce the risk of attrition.
 
-<h4>Keywords</h4><br>
-Talent Mangement, Employee Attrition, Determining Factors, Retention<br>
+<h4>Keywords</h4>
+Talent Mangement, Employee Attrition, Determining Factors, Retention
 
+<h4>Data Input</h4>
+The training and validation data sets were read into data frames. We combined the data frames to one data frame to clean all the data at the same time.
 ```{r echo = TRUE}
-# Read employee data from the training csv file and name the dataset train.Then rename columns to be more readable.
-train <- read.csv(".\\InputFiles\\CaseStudy2-data.csv",header=TRUE,sep=",",encoding = "UTF-8")
+# Read employee data from the training csv file and name the dataset train.
+train <- read.csv(".\\InputFiles\\CaseStudy2-data.csv",header=TRUE,stringsAsFactors = TRUE,sep=",",encoding = "UTF-8")
 
-# Read employee data from the validation csv file and names the dataset train.Then rename columns to be more readable.
-validate <- read.csv(".\\InputFiles\\CaseStudy2Validation.csv",header=TRUE,sep=",",encoding = "UTF-8")
+# Read employee data from the validation csv file and names the dataset train.
+validate <- read.csv(".\\InputFiles\\CaseStudy2Validation.csv",header=TRUE,stringsAsFactors = TRUE,sep=",",encoding = "UTF-8")
 
 alldata = rbind(train,validate) # create dataframe with all data to clean all at same time
-
-#Change gender from M/F to 1/0
 ```
 
-Data Exploration
+<h4>Data Exploration</h4>
+There are 1170 observations with 37 variables (9 factors, 27 integers, 1 random number)
+
+The following initial assessments/actions were completed:<br>
+- Reviewed the data to confirm factor/categorical variable values exist in both.<br>
+- Removed variables where all values are the same: StandardHours, EmployeeCount, Over18<br>
+- Removed unrelated variable Rand<br>
+- Recoded Attrition to 0=No, 1=Yes<br>
+
 ```{r DE}
-
-#Review the structure of the data
-#str(train)
-
-##RESULTS
-#########1170 observations 
-#########37 variables (9 factors, 27 integers, 1 random number)
-
-#HMisc describe gives more details than str
-###I prefer the details in a data dictionary format- but let's discuss
-#Hmisc::describe(train, digits = 2, tabular = TRUE)
+# HMisc provides more details than str
 #Hmisc::describe(alldata, digits = 2, tabular = TRUE)
+# There are 1170 observations with 37 variables (9 factors, 27 integers, 1 random number)
 
 # Reviewed train and validate data to confirm factor/categorical variable values exist in both
 # Remove variables where all values are the same: StandardHours, EmployeeCount, Over18
 # Remove unrelated variable Rand
 alldata <- select(alldata,-c(StandardHours, EmployeeCount, Over18, Rand))
 
-# Recode Attrition with 0s and 1s
-alldata$Attrition <- ifelse(alldata[,3] == "Yes", 1, ifelse(alldata[,3] == "No", 0, 99))
-
 ##Manually created data dictionary based on results below with a notes field
 #DataDict <- read.csv(".\\InputFiles\\DataDictionary",header=TRUE,sep=",",encoding = "UTF-8")
 
-``` 
+```
+ 
 
-### Look for multicollinear variables, need to add re-coded attrition
+<h4>Looked for multicollinear variables to remove</h4>
+We found colinearity with following and removed one of the variables.
+- Monthly Income (removed)
+- Age            (removed)
+- Job Level
+
+- Years with Current Mangaer 
+- Total Working Years        (removed)
+- Years Since Last Promotion (removed)
+- Years in Current Role      (removed)
+- Years at Company           (removed)
+
 ```{r}
-library(corrplot)
-M_df <- select_if(alldata, is.numeric) # get all numeric data
-M <- cor(M_df)                         # convert to matrix
-corrplot(M, method = "circle")         # Display the correlation coefficient
+# Split data to create 2 correlation matrices, more readable
+data2<-alldata;                                                                           # create 1st data set for corr matrix
+data2$Attrition <- ifelse(data2[,3] == "Yes", 1, ifelse(data2[,3] == "No", 0, 99))        # Recode Attrition with 0s and 1s
+data3<-data2;                                                                             # create 2nd data set for corr matrix
+data2[21:33]<-list(NULL)                                                                  # reduce 1st data set
+data3[2]<-list(NULL)                                                                      # reduce 2nd data set, keeping  Attrition
+data3[3:19]<-list(NULL)
+
+M_df1 <- select_if(data2, is.numeric)                                                     # get all numeric data
+M1 <- cor(M_df1)                                                                          # convert to matrix
+corrplot(M1, order="hclust",addrect=2)                                                    # Display the correlation coefficient
+
+M_df2 <- select_if(data3, is.numeric)                                                     # get all numeric data
+M2 <- cor(M_df2)                                                                          # convert to matrix
+corrplot(M2, order="hclust",addrect=2)                                                    # Display the correlation coefficient
+
+#-----
+
+data4<-alldata;                                                                           # create 1st data set for corr matrix
+data4$Attrition <- ifelse(data4[,3] == "Yes", 1, ifelse(data4[,3] == "No", 0, 99))        # Recode Attrition with 0s and 1s
+
+data4<-data4[,-2]                                                                         # remove age
+data4<-data4[,-18]                                                                        # remove monthly income
+data4<-data4[,-23]                                                                        # remove total working years
+data4<-data4[,-29]                                                                        # remove years since last promotion
+data4<-data4[,-28]                                                                        # remove years in current role
+data4<-data4[,-27]                                                                        # remove years at company
+
+M_df3 <- select_if(data4, is.numeric)                                                     # get all numeric data
+M3 <- cor(M_df3)                                                                          # convert to matrix
+corrplot(M1, order="hclust",addrect=2)                                                    # Display the correlation coefficient
+
+train2 <- data4[1:1170,]                                                                  # Create new training set
+train2$Attrition <- as.factor(ifelse(train2[,2] == 1, "Yes", ifelse(train2[,2] == 0, "No", 99)))     # Recode Attrition back to Yes and No
+
 ```
 
 ```{r}
-samplesize=nrow(alldata)
-train_percent = .6
-train_indices = sample(seq(1,samplesize,length = samplesize),train_percent*samplesize) # get random indices
-training = alldata[train_indices,c(1,2)]   # random training data from original data
-test = alldata[-train_indices,c(1,2)]      # random test data from original data
-training.attrition = alldata[train_indices,3]
-test.attrition = alldata[-train_indices,3]
+# Attrition by Gender
+ggplot(alldata,aes(x=Gender,fill=Attrition)) +
+  ggtitle("Attrition by Gender") + ylab("Count") +                                          # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(aes(y = (..count..)),position=position_dodge()) +                                # side-by-side bars
+  geom_text(aes(y = (..count..),label =   ifelse((..count..)==0,"",                         # label bars by %
+            scales::percent((..count..)/sum(..count..)))), stat="count",
+            position=position_dodge(width=0.9),vjust=-0.25)
+```
+
+```{r}
+# Attrition by Department
+ggplot(alldata,aes(x=Department,fill=Attrition)) +
+  ggtitle("Attrition by Department") + ylab("Count") +                                      # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(aes(y = (..count..)),position=position_dodge()) +                                # side-by-side bars
+  geom_text(aes(y = (..count..),label =   ifelse((..count..)==0,"",                         # label bars by %
+            scales::percent((..count..)/sum(..count..)))), stat="count",
+            position=position_dodge(width=0.9),vjust=-0.25)
+```
+
+```{r}
+# Attrition by Age
+ggplot(alldata,aes(x=JobLevel,fill=Attrition)) +
+  ggtitle("Attrition by Age") + ylab("Count") +                                             # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(stat="count",position=position_dodge())                                          # side-by-side bars
+      
+```
+
+```{r}
+# Attrition by Travel Distance
+ggplot(alldata,aes(x=DistanceFromHome,fill=Attrition)) +
+  ggtitle("Attrition by Travel Distance") + ylab("Count") +                                 # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(stat="count",position=position_dodge())                                          # side-by-side bars
+      
+```
+
+```{r}
+# Attrition by Travel Education
+ggplot(alldata,aes(x=Education,fill=Attrition)) +
+  ggtitle("Attrition by Education") + ylab("Count") +                                       # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(aes(y = (..count..)),position=position_dodge()) +                                # side-by-side bars
+  geom_text(aes(y = (..count..),label =   ifelse((..count..)==0,"",                         # label bars by %
+            scales::percent((..count..)/sum(..count..)))), stat="count",
+            position=position_dodge(width=0.9),vjust=-0.25)
+```
+
+```{r}
+ggplot(alldata,aes(x=EducationField,fill=Attrition)) +
+  ggtitle("Attrition by Education Field") + ylab("Count") +                                 # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(aes(y = (..count..)),position=position_dodge()) +                                # side-by-side bars
+  geom_text(aes(y = (..count..),label =   ifelse((..count..)==0,"",                         # label bars by %
+            scales::percent((..count..)/sum(..count..)))), stat="count",
+            position=position_dodge(width=0.9),vjust=-0.25)
+      
+```
+
+```{r}
+ggplot(alldata,aes(x=JobSatisfaction,fill=Attrition)) +
+  ggtitle("Attrition by JobSatisfaction") + ylab("Count") +                                 # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(aes(y = (..count..)),position=position_dodge()) +                                # side-by-side bars
+  geom_text(aes(y = (..count..),label =   ifelse((..count..)==0,"",                         # label bars by %
+            scales::percent((..count..)/sum(..count..)))), stat="count",
+            position=position_dodge(width=0.9),vjust=-0.25) 
+      
+```
+
+```{r}
+ggplot(alldata,aes(x=JobRole,fill=Attrition)) +
+  ggtitle("Attrition by Job Role") + ylab("Count") +                                        # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(aes(y = (..count..)),position=position_dodge()) +                                # side-by-side bars
+  geom_text(aes(y = (..count..),label =   ifelse((..count..)==0,"",                         # label bars by %
+            scales::percent((..count..)/sum(..count..)))), stat="count",
+            position=position_dodge(width=0.9),vjust=-0.25) +
+  theme(axis.text.x=element_text(angle=70,hjust=1))
+      
+```
+
+```{r}
+ggplot(alldata,aes(x=JobLevel,fill=Attrition)) +
+  ggtitle("Attrition by Job Level") + ylab("Count") +                                       # add main & axis titles
+  scale_fill_brewer(palette="Paired")+ theme_minimal() +                                    # change color palette
+  geom_bar(aes(y = (..count..)),position=position_dodge()) +                                # side-by-side bars
+  geom_text(aes(y = (..count..),label =   ifelse((..count..)==0,"",                         # label bars by %
+            scales::percent((..count..)/sum(..count..)))), stat="count",
+            position=position_dodge(width=0.9),vjust=-0.25) +
+  theme(axis.text.x=element_text(angle=70,hjust=1))
+      
+```
+
+
+```{r}
+#### Historgrams for Age and Monthly Income
+par(mfrow=c(1,2))
+hist(train$Age, main="Histogram for Age", xlab="Age", col="blue", las=1, breaks=10)
+hist(train$MonthlyIncome, main="Histogram for Monthly Income", xlab="Monthly Income", 
+     xlim=c(2000,20000), ylim=c(0,400), col="green", las=1, breaks=25)
+```
+#### The histogram for Age shows a relatively normal distribution. Managment incomce provides a right skew of the Monthly Income histogram.There are more lower monthly incomes compared to management's higher income.
+
+
+
+```{r}
+tmp <- as.data.frame(train2$Attrition)
+train3 <- one_hot(as.data.table(train2))                                                  # Create dummy vars for categories
+train3<-train3[,-2]
+train3<-train3[,-2]
+samplesize=nrow(train3)
+train_percent = .6                                                                        # use a 60/40 split for train vs validate
+train_indices = sample(seq(1,samplesize,length = samplesize),train_percent*samplesize)    # get random indices
+training.attrition = tmp[train_indices,1]
+test.attrition = tmp[-train_indices,1]
+
+# --- Need to select & justify variables ---
+dfTrain = train3[train_indices,c(3,4,5,6)]                                                # random training data from original data
+dfVal = train3[-train_indices,c(3,4,5,6)]                                                 # random test data from original data
 
 #### Used the class package’s knn function to build an KNN classifier.
-knn.k21 = knn(training,test,cl=training.attrition,k=21)
+
+knn.k21 = knn(dfTrain,dfVal,cl=training.attrition,k=21)
 confusionMatrix(table(test.attrition,knn.k21))
 ```
-
 
