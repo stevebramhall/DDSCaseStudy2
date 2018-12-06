@@ -22,8 +22,6 @@ library(class)      # for classification funtions
 library(corrplot)   # for correlation matrix
 library(data.table)
 library(mltools)
-#library(metafor)
-#library(glmulti)
 
 ```
 
@@ -42,9 +40,36 @@ The training and validation data sets were read into data frames. We combined th
 train <- read.csv(".\\InputFiles\\CaseStudy2-data.csv",header=TRUE,stringsAsFactors = TRUE,sep=",",encoding = "UTF-8")
 
 # Read employee data from the validation csv file and names the dataset train.
-validate <- read.csv(".\\InputFiles\\CaseStudy2Validation.csv",header=TRUE,stringsAsFactors = TRUE,sep=",",encoding = "UTF-8")
+validation <- read.csv(".\\InputFiles\\CaseStudy2Validation.csv",header=TRUE,stringsAsFactors = TRUE,sep=",",encoding = "UTF-8")
 
-alldata = rbind(train,validate) # create dataframe with all data to clean all at same time
+alldata = rbind(train,validation) # create dataframe with all data to clean all at same time
+
+#Histograms of Numeric Data
+par(mfrow=c(2,2))
+hist(alldata$DistanceFromHome)
+hist(alldata$Education)
+hist(alldata$EnvironmentSatisfaction)
+hist(alldata$JobInvolvement)
+par(mfrow=c(2,2))
+hist(alldata$JobLevel)
+hist(alldata$JobSatisfaction)
+hist(alldata$MonthlyIncome)
+hist(alldata$NumCompaniesWorked)
+par(mfrow=c(2,2))
+hist(alldata$PercentSalaryHike)
+hist(alldata$PerformanceRating)
+hist(alldata$RelationshipSatisfaction)
+par(mfrow=c(2,2))
+hist(alldata$StockOptionLevel)
+hist(alldata$TotalWorkingYears)
+hist(alldata$TrainingTimesLastYear)
+hist(alldata$WorkLifeBalance)
+par(mfrow=c(2,2))
+hist(alldata$YearsAtCompany)
+hist(alldata$YearsInCurrentRole)
+hist(alldata$YearsSinceLastPromotion)
+hist(alldata$YearsWithCurrManager)
+
 ```
 
 <h4>Data Exploration</h4>
@@ -70,7 +95,6 @@ alldata <- select(alldata,-c(StandardHours, EmployeeCount, Over18, Rand))
 #DataDict <- read.csv(".\\InputFiles\\DataDictionary",header=TRUE,sep=",",encoding = "UTF-8")
 
 ```
- 
 
 <h4>Looked for multicollinear variables to remove</h4>
 We found colinearity with following and removed one of the variables.
@@ -85,6 +109,19 @@ We found colinearity with following and removed one of the variables.
 - Years at Company           (removed)
 
 ```{r}
+
+scatterplot <- ggplot(alldata, aes(MonthlyRate,MonthlyIncome,col=Attrition)) +
+  geom_point() + coord_flip() +                                                             # make horizontal scatter plot
+  ggtitle("Fig 5 - Employee ID vs Montly Income") +                                                          # add title
+  theme(plot.title = element_text(color="dark blue",hjust=0.5)) +                           # format main title
+  xlab("Montl") +  ylab("Bitterness") +                                           # add axis labels
+  theme(axis.title.x = element_text(color="dark blue")) +                                   # format x title
+  theme(axis.title.y = element_text(color="dark blue"))                                     # format y title
+
+#linear fit by lm to scatterplot
+scatterplot+geom_smooth(method = "lm", colour = "black", fill="yellow")
+
+
 # Split data to create 2 correlation matrices, more readable
 data2<-alldata;                                                                           # create 1st data set for corr matrix
 data2$Attrition <- ifelse(data2[,3] == "Yes", 1, ifelse(data2[,3] == "No", 0, 99))        # Recode Attrition with 0s and 1s
@@ -116,6 +153,8 @@ data4<-data4[,-27]                                                              
 M_df3 <- select_if(data4, is.numeric)                                                     # get all numeric data
 M3 <- cor(M_df3)                                                                          # convert to matrix
 corrplot(M1, order="hclust",addrect=2)                                                    # Display the correlation coefficient
+
+data3[2]<-list(NULL)  
 
 train2 <- data4[1:1170,]                                                                  # Create new training set
 train2$Attrition <- as.factor(ifelse(train2[,2] == 1, "Yes", ifelse(train2[,2] == 0, "No", 99)))     # Recode Attrition back to Yes and No
@@ -232,23 +271,83 @@ hist(train$MonthlyIncome, main="Histogram for Monthly Income", xlab="Monthly Inc
 
 
 ```{r}
-tmp <- as.data.frame(train2$Attrition)
-train3 <- one_hot(as.data.table(train2))                                                  # Create dummy vars for categories
-train3<-train3[,-2]
-train3<-train3[,-2]
-samplesize=nrow(train3)
-train_percent = .6                                                                        # use a 60/40 split for train vs validate
-train_indices = sample(seq(1,samplesize,length = samplesize),train_percent*samplesize)    # get random indices
-training.attrition = tmp[train_indices,1]
-test.attrition = tmp[-train_indices,1]
+# function to normalize data for KNN
+normalize <- function(x) {
+  y <- (x-min(x))/(max(x)-min(x))
+  y
+}
 
-# --- Need to select & justify variables ---
-dfTrain = train3[train_indices,c(3,4,5,6)]                                                # random training data from original data
-dfVal = train3[-train_indices,c(3,4,5,6)]                                                 # random test data from original data
+keyvars=c(2,9,10,11,12,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,45,46,47,48,49,51,52,53,54,55,56,57,58)
 
-#### Used the class package’s knn function to build an KNN classifier.
+# No categorical variables selected
+train.dummies <- one_hot(as.data.table(train))                            # Create dummy vars for categories
+val.dummies  <- one_hot(as.data.table(validation))  
 
-knn.k21 = knn(dfTrain,dfVal,cl=training.attrition,k=21)
-confusionMatrix(table(test.attrition,knn.k21))
+train_n <- lapply(train.dummies[,c(2,9,10,11,12,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,45,46,47,48,49,51,52,53,54,55,56,57,58)],normalize)                            # normalize numeric data
+val_n <- lapply(val.dummies[,c(2,9,10,11,12,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,45,46,47,48,49,51,52,53,54,55,56,57,58)],normalize)
+
+#train_n <- lapply(train[,c(2,7,12,15,16)],normalize)                       # normalize numeric data
+#val_n <- lapply(validation[,c(2,7,12,15,16)],normalize)
+
+dfTrain <- data.frame(train_n)                                             # create dataframe of normalized data
+dfVal <- data.frame(val_n)
+
+rownames(dfTrain) <- train$ID                                              # add IDs
+rownames(dfVal) <- validation$ID
+
+train.attrition <- train$Attrition                                         # isolate attrition
+val.attrition <- validation$Attrition
+
+names(train.attrition) <- train$ID                                         # add IDs
+names(val.attrition) <- validation$ID
+
+dfTrain[1:4]                                                               # check normalized data
+dfVal[1:4]
+
+valIDs <- rownames(dfVal)
+
+train.attrition[1:10]                                                      # check data
+val.attrition[1:10]
 ```
+
+<h4> Execution of Model and Results</h4>
+
+```{r}
+k<-3
+
+#loops=11
+#while(k < loops) {                                                                        # looping due to minor variation between runs
+  pred <- knn(dfTrain,dfVal,cl=train.attrition,k)                                         # run knn model
+  result=confusionMatrix(table(val.attrition,pred))                                       # store confusion matrix
+#  chk1=result$overall['Accuracy']
+#  chk2=result$byClass['Specificity']
+
+#  if (k == 1) {
+#    bestk <- k
+#    best.result <- result                                                                 # store 1st run as best results
+#    dfPred <- data.frame(pred)                                                            # store predictions
+#  }
+#  else if (result$byClass['Specificity'] > best.result$byClass['Specificity']) {          # check for best specificity
+#    bestk <- k
+#    best.result <- result                                                                 # replace best results
+    dfPred <- data.frame(pred)                                                            # replace best predictions
+#  }
+#  k=k+1
+#}
+
+#bestk
+#best.result
+result
+```
+
+```{r}
+# Output Prediction File
+dfPred <- data.frame(dfPred)                     # create dataframe of normalized data
+dfPred$ID <- valIDs                              # add IDs
+dfPred <- dfPred[,c(2,1)]
+names(dfPred) <- c("ID","PredictedAttrition")
+
+#write.csv(dfPred,"dfPred.csv",row.names=FALSE)
+```
+
 
