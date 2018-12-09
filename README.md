@@ -30,7 +30,7 @@ The Journal of Applied Psychology published first empirical study regarding turn
 3. DataDictionary.csv - data dictionary
 
 #### OUTPUT FILES: (Folder = OutputFiles)
-* DFPred.csv - output predictions
+* DFPred.csv - predictions of validation data from model
 
 #### LIBRARIES
 * dplyr      - for string functions
