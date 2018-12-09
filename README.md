@@ -3,7 +3,7 @@
 *Steve Bramhall, Hayley Horn*
 
 
-The Journal of Applied Psychology published first empirical study regarding turnover in 1925, although there were articles published as early as 1917. (isbn 978-1-4338-9042-0) So we have seen 100 years of new ideas and approaches on employee churn. This project applies a Data Science Approach this problem and provides an example on how clients can have the best visibility for this area of talent management.
+The Journal of Applied Psychology published first empirical study regarding turnover in 1925, although there were articles published as early as 1917. (isbn 978-1-4338-9042-0) So we have seen 100 years of new ideas and approaches on employee churn. This project applies a Data Science approach to this problem and provides an example on how clients can have the best visibility for this area of talent management.
 
 
 
