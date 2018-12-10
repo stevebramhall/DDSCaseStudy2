@@ -640,7 +640,7 @@ confusionMatrix(table(val.attrition,predKNN))                 # confusion matrix
 ## </code></pre>
 <p>Logistic Regression Model is another classification model that works well with both continusous and discrete data like KNN. The package selected provide a nice table making it easy to idenfity significant factors using p-values. The top variables include Commute, Environmental Satisfaction, Overtime, Job Involvement, Work Life Balance, Business Travel and Years Since Last Promotion.</p>
 <pre class="r"><code>logreg&lt;-glm(Attrition~Age+BusinessTravel+Department+DistanceFromHome+Education+EducationField+EnvironmentSatisfaction+Gender+JobInvolvement+JobLevel+JobRole+JobSatisfaction+MaritalStatus+MonthlyIncome+NumCompaniesWorked+OverTime+PercentSalaryHike+PerformanceRating+RelationshipSatisfaction+StockOptionLevel+TotalWorkingYears+TrainingTimesLastYear+WorkLifeBalance+YearsAtCompany+YearsInCurrentRole+YearsSinceLastPromotion+YearsWithCurrManager, data=train,family=binomial(link='logit'))</code></pre>
-<p>Apply training data to Logistic Regression model.</p>
+<p>Apply training data to Logistic Regression model. The logistic regression model improves upon the KNN model with an accuracy of 87.7% having a 95% confidence interval of (83%, 91%) with specificity of 80%.</p>
 <pre class="r"><code># Store the probabilites for every observation in the dataset 
 logreg.prob &lt;- predict(logreg, validation, type = &quot;response&quot;)
 

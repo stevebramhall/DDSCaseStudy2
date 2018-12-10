@@ -615,7 +615,7 @@ Logistic Regression Model is another classification model that works well with b
 logreg<-glm(Attrition~Age+BusinessTravel+Department+DistanceFromHome+Education+EducationField+EnvironmentSatisfaction+Gender+JobInvolvement+JobLevel+JobRole+JobSatisfaction+MaritalStatus+MonthlyIncome+NumCompaniesWorked+OverTime+PercentSalaryHike+PerformanceRating+RelationshipSatisfaction+StockOptionLevel+TotalWorkingYears+TrainingTimesLastYear+WorkLifeBalance+YearsAtCompany+YearsInCurrentRole+YearsSinceLastPromotion+YearsWithCurrManager, data=train,family=binomial(link='logit'))
 ```  
 
-Apply training data to Logistic Regression model. 
+Apply training data to Logistic Regression model. The logistic regression model improves upon the KNN model with an accuracy of 87.7% having a 95% confidence interval of (83%, 91%) with specificity of 80%.
 ```{r echo=TRUE}
 # Store the probabilites for every observation in the dataset 
 logreg.prob <- predict(logreg, validation, type = "response")
