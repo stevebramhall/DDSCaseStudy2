@@ -646,6 +646,6 @@ if (writePredFile == 1) {                        # writePredFile flag can be cha
   write.csv(dfPred,"dfPred.csv",row.names=FALSE)
 }
 ```
-Youtube Video Links
-Steve Bramhall https://www.youtube.com/watch?v=Ef37iYGpUTw
+Youtube Video Links<br>
+Steve Bramhall https://www.youtube.com/watch?v=Ef37iYGpUTw<br>
 Hayley Horn https://www.youtube.com/watch?v=U1y6M2hN8tE
